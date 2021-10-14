@@ -5,13 +5,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.os.FileUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.commons.io.FileUtils.readLines;
+import static org.apache.commons.io.FileUtils.writeLines;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         items.add("Drink Water");
         items.add("Do Yoga");
         items.add("Explore CSec");
+        loadItems();
 
 
         ItemsAdapter.OnLongClickListener onLongClickListener = new ItemsAdapter.OnLongClickListener() {
@@ -43,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
                 items.remove(position);
                 itemsAdapter.notifyItemRemoved(position);
                 Toast.makeText(getApplicationContext(),"Item removed",Toast.LENGTH_SHORT);
+                saveItems();
             }
         };
 
@@ -58,14 +69,36 @@ public class MainActivity extends AppCompatActivity {
                 itemsAdapter.notifyItemInserted(items.size()-1);
                 todoItem.setText("");
                 Toast.makeText(getApplicationContext(),"Item added",Toast.LENGTH_SHORT).show();
-
+                saveItems();
             }
         });
 
+    }
 
+    private File getDataFile(){
+        return new File(getFilesDir(),"data.txt");
+    }
+
+    //function to load items from file
+    private void loadItems(){
+        try{
+            items = new ArrayList<>(readLines(getDataFile(), Charset.defaultCharset()));
+        }catch(IOException e){
+            Log.e("MainActivity","Error reading items",e);
+            items = new  ArrayList<>();
+        }
 
     }
 
+    //function to save items to files
+    private void saveItems(){
+        try{
+            writeLines(getDataFile(),items);
+        }catch(IOException e){
+            Log.e("MainActivity","Error writing items",e);
+        }
+
+    }
 
 
 
